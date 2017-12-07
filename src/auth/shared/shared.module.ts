@@ -1,8 +1,9 @@
-import {NgModule} from '@angular/core';
+import {ModuleWithProviders, NgModule} from '@angular/core';
 
 import {AuthFormComponent} from './components/auth-form/auth-form.component';
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
+import {AuthService} from "./services/auth/auth.service";
 
 @NgModule({
   imports: [
@@ -16,4 +17,14 @@ import {ReactiveFormsModule} from "@angular/forms";
     AuthFormComponent
   ]
 })
-export class SharedModule {}
+export class SharedModule {
+  // Use static forRoot to prevent duplicate instance of AuthService
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: SharedModule,
+      providers: [
+        AuthService
+      ]
+    };
+  }
+}
