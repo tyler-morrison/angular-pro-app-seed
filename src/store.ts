@@ -9,6 +9,7 @@ import {Meal} from "./health/shared/services/meals/meals.service";
 import {Workout} from "./health/shared/services/workouts/workouts.service";
 
 export interface State {
+  date: Date,
   user: User,
   meals: Meal[],
   workouts: Workout[],
@@ -16,6 +17,7 @@ export interface State {
 }
 
 const state: State = {
+  date: undefined,
   user: undefined,
   meals: undefined,
   workouts: undefined
