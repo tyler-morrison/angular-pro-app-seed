@@ -8,6 +8,8 @@ import {MealsService} from "./services/meals/meals.service";
 import {AngularFireDatabaseModule} from "angularfire2/database";
 import {ListItemComponent} from "./components/list-item/list-item.component";
 import {WorkoutsService} from "./services/workouts/workouts.service";
+import {JoinPipe} from "./pipes/join.pipe";
+import {WorkoutPipe} from "./pipes/workout.pipe";
 
 
 @NgModule({
@@ -17,10 +19,14 @@ import {WorkoutsService} from "./services/workouts/workouts.service";
     RouterModule
   ],
   declarations: [
-    ListItemComponent
+    JoinPipe,
+    ListItemComponent,
+    WorkoutPipe
   ],
   exports: [
-    ListItemComponent
+    JoinPipe,
+    ListItemComponent,
+    WorkoutPipe
   ]
 })
 export class SharedModule {
