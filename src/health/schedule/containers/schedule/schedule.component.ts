@@ -13,6 +13,7 @@ import {Subscription} from "rxjs/Subscription";
         [date]="date$ | async"
         [items]="schedule$ | async"
         (change)="changeDate($event)"
+        (select)="changeSection($event)"
       ></schedule-calendar>
     </div>
   `
@@ -33,8 +34,10 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.date$ = this.store.select('date');
     this.schedule$ = this.store.select('schedule');
 
+    // We use this property to neatly package all of our subscriptions
     this.subscriptions = [
-      this.scheduleService.schedule$.subscribe()
+      this.scheduleService.schedule$.subscribe(),
+      this.scheduleService.selected$.subscribe()
     ];
   }
 
@@ -44,5 +47,9 @@ export class ScheduleComponent implements OnInit, OnDestroy {
 
   changeDate(date: Date) {
     this.scheduleService.updateDate(date);
+  }
+
+  changeSection(event: any) {
+    this.scheduleService.selectSection(event);
   }
 }

@@ -22,7 +22,9 @@ import {ScheduleItem, ScheduleList} from "../../../shared/services/schedule/sche
         *ngFor="let section of sections"
         [name]="section.name"
         [section]="getSection(section.key)"
+        (select)="selectSection($event, section.key)"
       >
+        <!-- NOTE on (select): In addition to the event we pass out from ScheduleSection, we want to pass the specific key from our current iteration-->
       </schedule-section>
     </div>
   `
@@ -52,6 +54,7 @@ export class ScheduleCalendarComponent implements OnChanges {
   @Output()
   change = new EventEmitter<Date>();
 
+  // This passes the select event up to ScheduleComponent one more time...
   @Output()
   select = new EventEmitter<any>();
 
@@ -66,6 +69,18 @@ export class ScheduleCalendarComponent implements OnChanges {
     // Here `this.items` relates to the entire ScheduleList
     // Then we dynamically use the `[name]` key to request a specific section related to the iteration in the *ngFor above
     return this.items && this.items[name] || {};
+  }
+
+  // NOTE: Here we can use a destructured syntax to get at the child properties of $event...
+  selectSection({ type, assigned, data}: any, section: string) {
+    const day = this.selectedDay;
+    this.select.emit({
+      type,
+      assigned,
+      section,
+      day,
+      data
+    });
   }
 
   selectDay(index: number) {

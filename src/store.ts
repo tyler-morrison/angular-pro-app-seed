@@ -13,6 +13,7 @@ export interface State {
   date: Date,
   user: User,
   meals: Meal[],
+  selected: any,
   schedule: ScheduleItem[],
   workouts: Workout[],
   [key: string]: any
@@ -22,6 +23,7 @@ const state: State = {
   date: undefined,
   user: undefined,
   meals: undefined,
+  selected: undefined,
   schedule: undefined,
   workouts: undefined
 };

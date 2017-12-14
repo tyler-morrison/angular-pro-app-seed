@@ -8,6 +8,7 @@ import "rxjs/add/operator/map";
 import {AngularFireDatabase} from "angularfire2/database";
 import {AuthService} from "../../../../auth/shared/services/auth/auth.service";
 import "rxjs/add/operator/switchMap";
+import {Subject} from "rxjs/Subject";
 
 export interface ScheduleItem {
   meals: Meal[];
@@ -29,6 +30,10 @@ export interface ScheduleList {
 export class ScheduleService {
 
   private date$ = new BehaviorSubject(new Date());
+  private section$ = new Subject();
+
+  selected$ = this.section$
+    .do((next: any) => this.store.set('selected', next));
 
   schedule$: Observable<ScheduleItem[]> = this.date$
     .do((next: any) => {
@@ -85,6 +90,11 @@ export class ScheduleService {
 
   updateDate(date: Date) {
     this.date$.next(date);
+  }
+
+  selectSection(event: any) {
+    // Here we are simply passing the user section that was selected into our Store
+    this.section$.next(event);
   }
 
   private getSchedule(startAt: number, endAt: number) {
