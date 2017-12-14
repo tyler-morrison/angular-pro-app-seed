@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {ScheduleItem, ScheduleList} from "../../../shared/services/schedule/schedule.service";
 
 @Component({
   selector: 'schedule-calendar',
@@ -16,29 +17,55 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
         (select)="selectDay($event)"
       >
       </schedule-days>
+      
+      <schedule-section
+        *ngFor="let section of sections"
+        [name]="section.name"
+        [section]="getSection(section.key)"
+      >
+      </schedule-section>
     </div>
   `
 })
 
 export class ScheduleCalendarComponent implements OnChanges {
-  selectedDay: Date;
+
   selectedDayIndex: Number;
+  selectedDay: Date;
   selectedWeek: Date;
+
+  sections = [
+    { key: 'morning', name: 'Morning' },
+    { key: 'lunch', name: 'Lunch' },
+    { key: 'evening', name: 'Evening' },
+    { key: 'Snacks', name: 'Snacks and Drinks' }
+  ];
 
   @Input()
   set date(date: Date) {
     this.selectedDay = new Date(date.getTime());
   }
 
-  @Output()
-  change = new EventEmitter<Date>()
+  @Input()
+  items: ScheduleList;
 
-  constructor() {
-  }
+  @Output()
+  change = new EventEmitter<Date>();
+
+  @Output()
+  select = new EventEmitter<any>();
+
+  constructor() {}
 
   ngOnChanges(): void {
     this.selectedDayIndex = this.getToday(this.selectedDay);
     this.selectedWeek = this.getStartOfWeek(new Date(this.selectedDay));
+  }
+
+  getSection(name: string): ScheduleItem {
+    // Here `this.items` relates to the entire ScheduleList
+    // Then we dynamically use the `[name]` key to request a specific section related to the iteration in the *ngFor above
+    return this.items && this.items[name] || {};
   }
 
   selectDay(index: number) {
