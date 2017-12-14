@@ -9,6 +9,7 @@ import {AngularFireDatabase} from "angularfire2/database";
 import {AuthService} from "../../../../auth/shared/services/auth/auth.service";
 import "rxjs/add/operator/switchMap";
 import {Subject} from "rxjs/Subject";
+import "rxjs/add/operator/withLatestFrom";
 
 export interface ScheduleItem {
   meals: Meal[];
@@ -31,9 +32,42 @@ export class ScheduleService {
 
   private date$ = new BehaviorSubject(new Date());
   private section$ = new Subject();
+  private itemList$ = new Subject();
+
+  // Detect available items within a section and detect if a user is trying to update them
+  items$ = this.itemList$
+    .withLatestFrom(this.section$)
+    .map(([ items, section ]: any[]) => {
+      const id = section.data.$key;
+
+      const defaults: ScheduleItem = {
+        workouts: null,
+        meals: null,
+        section: section.section,
+        timestamp: new Date(section.day).getTime()
+      };
+
+      // NOTE: Here we use a dynamic spread that checks if data exists in Firebase
+      // If yes, return that db data, else return the defaults
+      const payload = {
+        ...(id ? section.data : defaults),
+        ...items
+      };
+
+      if (id) {
+        return this.updateSection(id, payload);
+      } else {
+        return this.createSection(payload);
+      }
+    });
 
   selected$ = this.section$
     .do((next: any) => this.store.set('selected', next));
+
+  list$ = this.section$
+    // First we map the current section that the user clicked to get that specific value from the Store
+    .map((value: any) => this.store.value[value.type])
+    .do((next: any) => this.store.set('list', next));
 
   schedule$: Observable<ScheduleItem[]> = this.date$
     .do((next: any) => {
@@ -92,9 +126,21 @@ export class ScheduleService {
     this.date$.next(date);
   }
 
+  updateItems(items: string[]) {
+    this.itemList$.next(items);
+  }
+
   selectSection(event: any) {
     // Here we are simply passing the user section that was selected into our Store
     this.section$.next(event);
+  }
+
+  private updateSection(key: string, payload: ScheduleItem) {
+    this.db.object(`schedule/${this.uid}/${key}`).update(payload);
+  }
+
+  private createSection(payload: ScheduleItem) {
+    return this.db.list(`/schedule/${this.uid}`).push(payload);
   }
 
   private getSchedule(startAt: number, endAt: number) {
